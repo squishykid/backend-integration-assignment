@@ -1,7 +1,7 @@
 // get/set block
 // get/set
 
-import { CachedBlock, ICache } from "./cache.type";
+import { CachedBlock, CachedDay, ICache } from "./cache.type";
 import { Outcome, Result } from "../helper.type";
 import { Redis } from "ioredis";
 export class Cache implements ICache {
@@ -26,10 +26,32 @@ export class Cache implements ICache {
   };
 
   upsertBlock = async (block: CachedBlock): Promise<Result<void>> => {
-    this.#redis.set(block.hash, JSON.stringify(block));
+    await this.#redis.set(block.hash, JSON.stringify(block));
     return {
       result: Outcome.Success,
       data: undefined,
     };
   };
+
+  getDay = async (timestampMs: number): Promise<Result<CachedDay>> => {
+    const cached = await this.#redis.get(`${timestampMs}`);
+    if (!cached) {
+      return {
+        result: Outcome.Error,
+        error: null,
+      };
+    }
+    return {
+      result: Outcome.Success,
+      data: JSON.parse(cached),
+    };
+  }
+
+  upsertDay = async (timestampMs: number, day: CachedDay): Promise<Result<void>> => {
+    await this.#redis.set(`${timestampMs}`, JSON.stringify(day));
+    return {
+      result: Outcome.Success,
+      data: undefined,
+    };
+  }
 }

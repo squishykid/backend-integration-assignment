@@ -2,6 +2,7 @@ import { IBlockchain } from "../../client/blockchain.types";
 import { Block, IInfo, Transaction } from "./info.type";
 import { isErr, isOk, Outcome, Result } from "../../helper.type";
 import { ICache } from "../../client/cache.type";
+import { date } from "zod";
 
 export class Info implements IInfo {
   readonly #blockchain: IBlockchain;
@@ -58,15 +59,30 @@ export class Info implements IInfo {
     return freshData;
   };
 
-  blocksOnDay = async (date: number): Promise<Result<Block[]>> => {
-    const blocks = await this.#blockchain.getBlocksForDay(date);
-    if (isErr(blocks)) {
-      return blocks;
+  blocksOnDay = async (dateMs: number): Promise<Result<Block[]>> => {
+    dateMs = new Date(dateMs).setHours(
+      0,
+      0,
+      0,
+      0,
+    )
+
+    let hashes = await this.#cache.getDay(dateMs);
+    if (isErr(hashes)) {
+      const blocks = await this.#blockchain.getBlocksForDay(dateMs);
+      if (isErr(blocks)) {
+        return blocks;
+      }
+      hashes = {
+        result: Outcome.Success,
+        data: blocks.data.map(b => b.hash)
+      }
+      await this.#cache.upsertDay(dateMs, hashes.data)
     }
 
     const work: Promise<Result<Block>>[] = [];
-    for (const blockOnDay of blocks.data) {
-      work.push(this.block(blockOnDay.hash));
+    for (const hash of hashes.data) {
+      work.push(this.block(hash));
     }
 
     const result = await Promise.all(work);

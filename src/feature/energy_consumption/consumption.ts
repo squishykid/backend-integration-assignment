@@ -41,11 +41,7 @@ export class Consumption implements IConsumption {
         }, 0);
         consumption += blockEnergy;
       }
-
-      // blocks.push(...blocksForDay.data)
-      console.log("blocksonday", dayInMs);
     }
-    console.log("blocksondaydone");
 
     return {
       days: n,

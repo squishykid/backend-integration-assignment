@@ -15,11 +15,13 @@ import axios, {
 import axiosRetry from "axios-retry";
 import { ZodType } from "zod";
 import { Result, Outcome } from "../helper.type";
+import pLimit, { LimitFunction } from "p-limit";
 
 export class Blockchain implements IBlockchain {
   readonly urlBase: string;
   readonly axios: AxiosInstance;
-  constructor(urlBase: string = "https://blockchain.info") {
+  readonly #limit: LimitFunction
+  constructor(urlBase: string = "https://blockchain.info", concurrency = 50) {
     this.axios = axios.create({
       baseURL: urlBase,
     });
@@ -28,6 +30,7 @@ export class Blockchain implements IBlockchain {
       retryDelay: axiosRetry.exponentialDelay,
     });
     this.urlBase = urlBase;
+    this.#limit = pLimit(concurrency)
   }
 
   private get = async <T>(
@@ -36,7 +39,10 @@ export class Blockchain implements IBlockchain {
   ): Promise<Result<T>> => {
     let res: AxiosResponse<unknown>;
     try {
-      res = await this.axios.get(path);
+      await this.#limit(async () => {
+        console.log("limits", this.#limit.pendingCount);
+        res = await this.axios.get(path);
+      })
     } catch (e: unknown) {
       if (isAxiosError(e)) {
         return {
