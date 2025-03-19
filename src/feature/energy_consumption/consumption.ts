@@ -4,7 +4,7 @@ import {
   LastNDaysConsumption,
   TransactionWithConsumption,
 } from "./consumption.type";
-import { isErr, isOk, Outcome, Result } from "../../helper.type";
+import { isErr } from "../../helper.type";
 import { IInfo } from "../blockchain_info/info.type";
 
 export class Consumption implements IConsumption {

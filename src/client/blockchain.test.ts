@@ -2,7 +2,6 @@ import nock from "nock";
 import * as NotFound from "./samples/00000100000000000000c9b43bcabdb0090376d569fb0c44ab0d22b1e6931836.json";
 import * as LatestBlock from "./samples/0000000000000000000050af9f3e367620a434fc86c7fbd5b0d9c42bef6649bd.json";
 import * as PreviousBlock from "./samples/000000000000000000023fa87ab8d2ad9f50a2596f7310086da858b32fe788dc.json";
-import * as LatestBlockEndpoint from "./samples/latestblock.json";
 import { Blockchain } from "./blockchain";
 import { isAxiosError } from "axios";
 import { Outcome } from "../helper.type";
@@ -146,26 +145,6 @@ describe("Blockchain API client", () => {
       expect(res.result).toEqual(Outcome.Success);
       if (res.result === Outcome.Success) {
         expect(res.data.hash).toEqual(blockHash);
-      } else {
-        // unable to narrow types with jest yet
-        expect(true).toBeFalsy();
-      }
-    });
-  });
-
-  describe("latestblock", () => {
-    it("should get latest block", async () => {
-      nock("https://blockchain.info")
-        .get(`/latestblock`)
-        .reply(200, LatestBlockEndpoint);
-
-      const client = new Blockchain("https://blockchain.info");
-      const res = await client.latestBlock();
-      expect(res.result).toEqual(Outcome.Success);
-      if (res.result === Outcome.Success) {
-        expect(res.data.hash).toEqual(
-          "00000000000000000001fe0e3cfeb6adce1fb7ea63d723173366ce30cc0c77b2",
-        );
       } else {
         // unable to narrow types with jest yet
         expect(true).toBeFalsy();

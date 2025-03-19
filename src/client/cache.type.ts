@@ -1,5 +1,4 @@
 import { Result } from "../helper.type";
-import { LatestBlock, RawBlock } from "./blockchain.types";
 
 export type CachedTransaction = {
   hash: string;

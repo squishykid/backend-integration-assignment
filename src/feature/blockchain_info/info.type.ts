@@ -14,6 +14,5 @@ export type Block = {
 
 export interface IInfo {
   block(hash: string): Promise<Result<Block>>;
-  latestBlockHash(): Promise<Result<string>>;
   blocksOnDay(date: number): Promise<Result<Block[]>>;
 }

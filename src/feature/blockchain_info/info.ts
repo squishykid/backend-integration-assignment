@@ -83,16 +83,4 @@ export class Info implements IInfo {
       data: success,
     };
   };
-
-  latestBlockHash = async (): Promise<Result<string>> => {
-    const latestBlock = await this.#blockchain.latestBlock();
-    if (isErr(latestBlock)) {
-      return latestBlock;
-    }
-
-    return {
-      result: Outcome.Success,
-      data: latestBlock.data.hash,
-    };
-  };
 }

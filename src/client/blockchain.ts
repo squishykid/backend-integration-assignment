@@ -8,7 +8,6 @@ import {
   RawBlockSchema,
 } from "./blockchain.types";
 import axios, {
-  AxiosError,
   AxiosInstance,
   AxiosResponse,
   isAxiosError,
@@ -64,10 +63,6 @@ export class Blockchain implements IBlockchain {
 
   getBlock = async (hash: string): Promise<Result<RawBlock>> => {
     return this.get("rawblock/" + hash, RawBlockSchema);
-  };
-
-  latestBlock = async (): Promise<Result<LatestBlock>> => {
-    return this.get("latestblock", LatestBlockSchema);
   };
 
   getBlocksForDay = async (dayInMs: number): Promise<Result<BlocksOnDay>> => {

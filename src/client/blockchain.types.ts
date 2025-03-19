@@ -34,6 +34,5 @@ export type BlocksOnDay = z.infer<typeof BlocksOnDaySchema>;
 
 export interface IBlockchain {
   getBlock(hash: string): Promise<Result<RawBlock>>;
-  latestBlock(): Promise<Result<LatestBlock>>;
   getBlocksForDay(dayInMs: number): Promise<Result<BlocksOnDay>>;
 }
