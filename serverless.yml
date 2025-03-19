@@ -1,5 +1,5 @@
 service: sf-assignment-pow
-frameworkVersion: '3'
+frameworkVersion: "3"
 configValidationMode: error
 
 provider:
@@ -23,10 +23,10 @@ custom:
     sourcemap: false
     target: node16
     watch:
-      pattern: ['src/**/*.ts']
+      pattern: ["src/**/*.ts"]
 
 functions:
   graphql:
     handler: src/fn_graphql.handler
     events:
-      - httpApi: '*'
+      - httpApi: "*"

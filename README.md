@@ -1,5 +1,7 @@
 # Backend Engineer Technical Assignment
+
 ## Introduction
+
 This assessment aims to assess the technical, analytical, and collaboration skills of
 the candidates for backend integration positions in Sensorfact.
 
@@ -18,27 +20,27 @@ existing products:
   new projects use TypeScript, because we like the benefits that the type system
   offers us during development, reviews, and testing.
 
-We understand that you may not be familiar with these technologies. In the short term, working using your preferred 
+We understand that you may not be familiar with these technologies. In the short term, working using your preferred
 tech stack will be possible. You can implement the solution using the tech stack you feel more comfortable
-working with. Nevertheless, in the long term, it will be beneficial if we are as homogenous as possible within 
-Sensorfact, so we would greatly appreciate it if you could try it and go as close as possible to our tech stack. 
+working with. Nevertheless, in the long term, it will be beneficial if we are as homogenous as possible within
+Sensorfact, so we would greatly appreciate it if you could try it and go as close as possible to our tech stack.
 It will also make it easier for us to evaluate your solution.
 
 ## Process & Guidelines
 
->- **We aim to timebox the assignment to 4 hours**, but feel free to dedicate as much time as you consider necessary. **We
-   will expect that you completed at least the two mandatory requests**
->- Make a conscious decision on what you want to focus on: it's ok if you
-   cannot complete the entire assignment.
->- Send us your solution before the technical interview: link to a repository.
-   You can, for example, fork this repository.
->- The assignment includes a description of a problem to solve, which could potentially lack
-   details. Feel free to make assumptions if needed, or contact us for clarification if you consider it necessary.
->- Take this assignment as an opportunity to show us your style: what you like to
-   work on, what you find important, how you address problems,etc.
->- **During the technical interview, we invite you to present your solution and discuss
-   it together as a team**: which decisions you took and why, questions about specific parts of the code,
-   libraries you have used, how easy and maintainable is the code,etc.
+> - **We aim to timebox the assignment to 4 hours**, but feel free to dedicate as much time as you consider necessary. **We
+>   will expect that you completed at least the two mandatory requests**
+> - Make a conscious decision on what you want to focus on: it's ok if you
+>   cannot complete the entire assignment.
+> - Send us your solution before the technical interview: link to a repository.
+>   You can, for example, fork this repository.
+> - The assignment includes a description of a problem to solve, which could potentially lack
+>   details. Feel free to make assumptions if needed, or contact us for clarification if you consider it necessary.
+> - Take this assignment as an opportunity to show us your style: what you like to
+>   work on, what you find important, how you address problems,etc.
+> - **During the technical interview, we invite you to present your solution and discuss
+>   it together as a team**: which decisions you took and why, questions about specific parts of the code,
+>   libraries you have used, how easy and maintainable is the code,etc.
 
 ## Problem to solve (an imaginary one, of course ;))
 
@@ -69,23 +71,27 @@ build it considering that we hope to scale the solution and avoid significant re
 
 **- You can use a simple model of the BTC network: the network is composed of blocks (each block identified by a unique `hash` value
 or a block index). Each block contains a set of transactions, each transaction also has a unique `hash` by which it can be identified.**
+
 - Every transaction takes up a variable amount of storage space inside the block, indicated by the `size` field (in bytes).
 - Assume that the energy cost per byte is 4,56 KwH.
 - You can use the public Blockchain API from blockchain.com to retrieve information
   (https://www.blockchain.com/explorer/api/blockchain_api), for example:
-    - Latest block: https://blockchain.info/latestblock
-    - Information of blocks in a day: https://blockchain.info/blocks/$time_in_milliseconds?format=json
-    - Information of a single block: https://blockchain.info/rawblock/$block_hash
-    - Information of a single transaction: https://blockchain.info/rawtx/$tx_hash
-    - Information on transactions for a specific wallet address: https://blockchain.info/rawaddr/$bitcoin_address
+  - Latest block: https://blockchain.info/latestblock
+  - Information of blocks in a day: https://blockchain.info/blocks/$time_in_milliseconds?format=json
+  - Information of a single block: https://blockchain.info/rawblock/$block_hash
+  - Information of a single transaction: https://blockchain.info/rawtx/$tx_hash
+  - Information on transactions for a specific wallet address: https://blockchain.info/rawaddr/$bitcoin_address
 
 ## Project code
+
 This project is comes with a pre-configured GraphQL server, hosted as a serverless
 function to get you started on the assignment. However, feel free to write your
 own implementation if you prefer.
 
 ## Running the project
+
 Requirements:
+
 - NodeJS 16.x (run `nvm use` in root folder)
 - Yarn cli
 - Serverless framework: run `npm install -g serverless`
@@ -103,4 +109,3 @@ yarn start
 ```
 
 The server will be ready at: `http://localhost:4000/graphql`
-
