@@ -1,10 +1,11 @@
 import {
-  BlocksOnDay, BlocksOnDaySchema,
+  BlocksOnDay,
+  BlocksOnDaySchema,
   IBlockchain,
   LatestBlock,
   LatestBlockSchema,
   RawBlock,
-  RawBlockSchema
+  RawBlockSchema,
 } from "./blockchain.types";
 import axios, {
   AxiosError,
@@ -70,6 +71,6 @@ export class Blockchain implements IBlockchain {
   };
 
   getBlocksForDay = async (dayInMs: number): Promise<Result<BlocksOnDay>> => {
-    return this.get(`blocks/${dayInMs}?format=json`, BlocksOnDaySchema)
-  }
+    return this.get(`blocks/${dayInMs}?format=json`, BlocksOnDaySchema);
+  };
 }

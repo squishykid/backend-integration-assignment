@@ -18,9 +18,9 @@ type ErrorResult = {
 export type Result<T> = SuccessResult<T> | ErrorResult;
 
 export const isOk = <T>(res: Result<T>): res is SuccessResult<T> => {
-  return res.result == Outcome.Success
-}
+  return res.result == Outcome.Success;
+};
 
 export const isErr = <T>(res: Result<T>): res is ErrorResult => {
-  return res.result == Outcome.Error
-}
+  return res.result == Outcome.Error;
+};

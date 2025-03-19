@@ -9,30 +9,30 @@ const schemaComposer = new SchemaComposer();
 const client = new Blockchain();
 const cache = new Cache(new Redis());
 const info = new Info(client, cache);
-const consumption = new Consumption(info, 4.56)
+const consumption = new Consumption(info, 4.56);
 
 const LastNDaysTC = schemaComposer.createObjectTC({
-  name: 'LastNDays',
+  name: "LastNDays",
   fields: {
-    days: 'Int!',
-    energy: 'Float!',
+    days: "Int!",
+    energy: "Float!",
   },
 });
 
 const TransactionTC = schemaComposer.createObjectTC({
-  name: 'Transaction',
+  name: "Transaction",
   fields: {
-    hash: 'String!',
-    energy: 'Float!',
-    size: 'Int!',
+    hash: "String!",
+    energy: "Float!",
+    size: "Int!",
   },
 });
 
 const BlockEnergyTC = schemaComposer.createObjectTC({
-  name: 'BlockEnergy',
+  name: "BlockEnergy",
   fields: {
-    hash: 'String!',
-    energy: 'Float!',
+    hash: "String!",
+    energy: "Float!",
     tx: [TransactionTC],
   },
 });
@@ -44,14 +44,14 @@ schemaComposer.Query.addFields({
   },
   lastDays: {
     type: () => "LastNDays!",
-    args: { days: 'Int!' },
+    args: { days: "Int!" },
     resolve: (_, { days }) => consumption.getConsumptionForLastDays(days),
   },
   blockEnergy: {
     type: () => "BlockEnergy!",
-    args: { hash: 'String!' },
-    resolve: (_, { hash }) => consumption.getConsumptionPerTransaction(hash)
-  }
+    args: { hash: "String!" },
+    resolve: (_, { hash }) => consumption.getConsumptionPerTransaction(hash),
+  },
 });
 
 export const schema = schemaComposer.buildSchema();
