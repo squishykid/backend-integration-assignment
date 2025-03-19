@@ -1,8 +1,10 @@
 import {
+  BlocksOnDay, BlocksOnDaySchema,
+  IBlockchain,
   LatestBlock,
   LatestBlockSchema,
   RawBlock,
-  RawBlockSchema,
+  RawBlockSchema
 } from "./blockchain.types";
 import axios, {
   AxiosError,
@@ -12,25 +14,9 @@ import axios, {
 } from "axios";
 import axiosRetry from "axios-retry";
 import { ZodType } from "zod";
+import { Result, Outcome } from "../helper.type";
 
-export enum Result {
-  Success,
-  Error,
-}
-
-type SuccessResponse<T> = {
-  result: Result.Success;
-  data: T;
-};
-
-type ErrorResponse = {
-  result: Result.Error;
-  error: Error | AxiosError;
-};
-
-export type Response<T> = SuccessResponse<T> | ErrorResponse;
-
-export class Blockchain {
+export class Blockchain implements IBlockchain {
   readonly urlBase: string;
   readonly axios: AxiosInstance;
   constructor(urlBase: string = "https://blockchain.info") {
@@ -47,14 +33,14 @@ export class Blockchain {
   private get = async <T>(
     path: string,
     schema: ZodType<T>,
-  ): Promise<Response<T>> => {
+  ): Promise<Result<T>> => {
     let res: AxiosResponse<unknown>;
     try {
       res = await this.axios.get(path);
     } catch (e: unknown) {
       if (isAxiosError(e)) {
         return {
-          result: Result.Error,
+          result: Outcome.Error,
           error: e,
         };
       }
@@ -64,22 +50,26 @@ export class Blockchain {
     const parsed = schema.safeParse(res.data);
     if (parsed.success) {
       return {
-        result: Result.Success,
+        result: Outcome.Success,
         data: parsed.data,
       };
     } else {
       return {
-        result: Result.Error,
+        result: Outcome.Error,
         error: parsed.error,
       };
     }
   };
 
-  getBlock = async (hash: string): Promise<Response<RawBlock>> => {
+  getBlock = async (hash: string): Promise<Result<RawBlock>> => {
     return this.get("rawblock/" + hash, RawBlockSchema);
   };
 
-  latestBlock = async (): Promise<Response<LatestBlock>> => {
+  latestBlock = async (): Promise<Result<LatestBlock>> => {
     return this.get("latestblock", LatestBlockSchema);
   };
+
+  getBlocksForDay = async (dayInMs: number): Promise<Result<BlocksOnDay>> => {
+    return this.get(`blocks/${dayInMs}?format=json`, BlocksOnDaySchema)
+  }
 }

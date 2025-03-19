@@ -1,10 +1,10 @@
 service: sf-assignment-pow
-frameworkVersion: "3"
+frameworkVersion: "4"
 configValidationMode: error
 
 provider:
   name: aws
-  runtime: nodejs16.x
+  runtime: nodejs22.x
   stage: ${opt:stage, 'dev'}
   region: eu-west-1
   lambdaHashingVersion: 20201221
@@ -13,7 +13,6 @@ provider:
   timeout: 29
 
 plugins:
-  - serverless-esbuild
   - serverless-offline
 
 custom:
@@ -21,7 +20,7 @@ custom:
     packager: yarn
     minify: false
     sourcemap: false
-    target: node16
+    target: node22
     watch:
       pattern: ["src/**/*.ts"]
 

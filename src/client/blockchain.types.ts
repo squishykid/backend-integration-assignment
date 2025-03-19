@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { Result } from "../helper.type";
 
 const Hash = z.string();
 
@@ -26,3 +27,15 @@ export const LatestBlockSchema = z.object({
 });
 
 export type LatestBlock = z.infer<typeof LatestBlockSchema>;
+
+
+
+export const BlocksOnDaySchema = z.array(LatestBlockSchema)
+
+export type BlocksOnDay = z.infer<typeof BlocksOnDaySchema>;
+
+export interface IBlockchain {
+  getBlock(hash: string): Promise<Result<RawBlock>>
+  latestBlock(): Promise<Result<LatestBlock>>
+  getBlocksForDay(dayInMs: number): Promise<Result<BlocksOnDay>>
+}
