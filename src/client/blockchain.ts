@@ -34,7 +34,7 @@ export class Blockchain implements IBlockchain {
     let res: AxiosResponse<unknown>;
     try {
       await this.#limit(async () => {
-        // console.log("limits", this.#limit.pendingCount);
+        console.log("limits", this.#limit.pendingCount);
         res = await this.axios.get(path);
       });
     } catch (e: unknown) {

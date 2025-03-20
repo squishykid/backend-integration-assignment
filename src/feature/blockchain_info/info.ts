@@ -133,7 +133,6 @@ export class Info implements IInfo {
   txBytesOnDay = async (dateMs: number): Promise<Result<number>> => {
     dateMs = canonicalMidnight(dateMs);
     const isToday = dateMs > Date.now();
-    console.log("istoday", dateMs, isToday);
 
     const cachedDay = await this.#cache.getDay(dateMs);
     if (isOk(cachedDay)) {
@@ -142,34 +141,37 @@ export class Info implements IInfo {
         data: cachedDay.data.totalTxSize,
       };
     }
-    const blockMetadata = await this.#blockchain.getBlocksForDay(dateMs);
-    if (isErr(blockMetadata)) {
-      return blockMetadata;
+    const blockMetadataForDay = await this.#blockchain.getBlocksForDay(dateMs);
+    if (isErr(blockMetadataForDay)) {
+      return blockMetadataForDay;
     }
 
-    const hashes = blockMetadata.data.map((b) => b.hash);
+    const hashesForDay = blockMetadataForDay.data.map((b) => b.hash);
     const work: Promise<Result<Block>>[] = [];
-    for (const hash of hashes) {
+    for (const hash of hashesForDay) {
       work.push(this.block(hash));
     }
 
     const result = await Promise.all(work);
-    const success: Block[] = [];
+
+    let totalTxSize = 0;
+    const blocksForDay: Block[] = [];
     for (const res of result) {
       if (res.result == Outcome.Success) {
-        success.push(res.data);
+        totalTxSize += res.data.txSize;
+        blocksForDay.push(res.data);
       } else {
         // exit here and do not put error in cache
         return res;
       }
     }
 
-    const totalTxSize = success.reduce((agg, b) => {
-      return agg + b.txSize;
-    }, 0);
     let ttl = -1;
     if (isToday) {
-      const msToNextBlock = Info.approxMsUntilNextBlock(Date.now(), success);
+      const msToNextBlock = Info.approxMsUntilNextBlock(
+        Date.now(),
+        blocksForDay,
+      );
       ttl = this.todayCacheTtl(msToNextBlock);
     }
     await this.#cache.upsertDay(dateMs, { totalTxSize }, ttl);

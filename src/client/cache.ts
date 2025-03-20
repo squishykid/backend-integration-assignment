@@ -50,7 +50,6 @@ export class Cache implements ICache {
     ttl: number,
   ): Promise<Result<void>> => {
     ttl = Math.floor(ttl);
-    console.log("upsertDay", timestampMs, ttl);
     if (ttl > -1) {
       await this.#redis.set(`${timestampMs}`, JSON.stringify(day), "PX", ttl);
     } else {
