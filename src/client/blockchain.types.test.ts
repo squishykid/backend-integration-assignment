@@ -24,6 +24,6 @@ describe("blockchain api types", () => {
   it("parses blocks-on-day endpoint", () => {
     const res = BlocksOnDaySchema.safeParse(BlocksOnDaySample.wrapper);
     expect(res.success).toBeTruthy();
-    expect(res.data?.length).toEqual(9);
+    expect(res.data?.length).toEqual(155);
   });
 });

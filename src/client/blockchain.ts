@@ -31,18 +31,11 @@ export class Blockchain implements IBlockchain {
     path: string,
     schema: ZodType<T>,
   ): Promise<Result<T>> => {
-    let res: AxiosResponse<unknown>;
+    let q;
     try {
-      await this.#queue.add(async () => {
-        console.log("limits", this.#queue.size, this.#queue.pending);
-        res = await this.axios.get(path);
-        console.log("limits done", this.#queue.size, this.#queue.pending);
-
+      q = await this.#queue.add(async () => {
+        return await this.axios.get(path);
       })
-      // await this.#limit(async () => {
-      //     console.log("limits", this.#limit.pendingCount);
-      //     res = await this.axios.get(path);
-      // });
     } catch (e: unknown) {
       if (isAxiosError(e)) {
         return {
@@ -51,6 +44,11 @@ export class Blockchain implements IBlockchain {
         };
       }
       throw e;
+    }
+
+    const res: AxiosResponse<unknown> | void = await q;
+    if (typeof res !== 'object') {
+      throw new Error('internal type error');
     }
 
     const parsed = schema.safeParse(res.data);

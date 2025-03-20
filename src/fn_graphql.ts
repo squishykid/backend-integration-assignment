@@ -1,4 +1,4 @@
-import { buildSchema, schema } from "./schema";
+import { buildSchema } from "./schema";
 import { APIGatewayProxyHandlerV2 } from "aws-lambda";
 import CreateLambdaApi from "lambda-api";
 import { getGraphQLParameters, processRequest } from "graphql-helix";

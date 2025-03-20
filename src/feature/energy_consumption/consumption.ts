@@ -1,7 +1,6 @@
 import {
   BlockWithConsumption, EnergyOnDay,
   IConsumption,
-  LastNDaysConsumption,
   TransactionWithConsumption
 } from "./consumption.type";
 import { isErr, Outcome, Result } from "../../helper.type";
