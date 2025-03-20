@@ -22,3 +22,13 @@ export const isOk = <T>(res: Result<T>): res is SuccessResult<T> => {
 export const isErr = <T>(res: Result<T>): res is ErrorResult => {
   return res.result == Outcome.Error;
 };
+
+export const ok = <T>(data: T): SuccessResult<T> => ({
+  result: Outcome.Success,
+  data: data,
+});
+
+export const err = (error: Error | unknown): ErrorResult => ({
+  result: Outcome.Error,
+  error,
+});

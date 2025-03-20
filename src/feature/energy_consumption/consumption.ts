@@ -20,6 +20,10 @@ export class Consumption implements IConsumption {
   getConsumptionForLastDays = async (n: number): Promise<EnergyOnDay[]> => {
     const timeNowMs = Date.now();
     const dayLenInMs = 1000 * 60 * 60 * 24;
+
+    /*
+    'now' is the next midnight
+     */
     const canonicalTimeNow = canonicalMidnight(timeNowMs + dayLenInMs);
 
     const work: Promise<Result<EnergyOnDay>>[] = [];

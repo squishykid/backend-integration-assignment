@@ -1,4 +1,4 @@
-export const canonicalMidnight = (timeMs: number): number => {
+export const canonicalMidnight = (timeMs: number | Date): number => {
   /*
   Help us decide on a canonical time stamp for a specific day.
   This takes a time in ms and returns the unix timestamp for
