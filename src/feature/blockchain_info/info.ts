@@ -62,6 +62,7 @@ export class Info implements IInfo {
   private getBlockFromApi = async (hash: string): Promise<Result<Block>> => {
     const result = await this.#blockchain.getBlock(hash);
     if (result.result == Outcome.Error) {
+      console.log("unable to get block", result.error)
       return err(
         new Error("Unable to get block with this hash", {
           cause: result.error,

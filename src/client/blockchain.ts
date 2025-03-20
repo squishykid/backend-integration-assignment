@@ -10,6 +10,8 @@ import axiosRetry from "axios-retry";
 import { ZodType } from "zod";
 import { Result, err, ok } from "../helper.type";
 import PQueue from "p-queue";
+import * as https from "https";
+import * as http from "http";
 
 export class Blockchain implements IBlockchain {
   readonly urlBase: string;
@@ -18,6 +20,8 @@ export class Blockchain implements IBlockchain {
   constructor(urlBase: string = "https://blockchain.info", concurrency = 100) {
     this.axios = axios.create({
       baseURL: urlBase,
+      httpAgent: new http.Agent({ keepAlive: true }),
+      httpsAgent: new https.Agent({ keepAlive: true }),
     });
     axiosRetry(this.axios, {
       retries: 3,
