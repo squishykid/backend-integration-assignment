@@ -4,7 +4,7 @@ import {
   IConsumption,
   TransactionWithConsumption,
 } from "./consumption.type";
-import { isErr, Outcome, Result } from "../../helper.type";
+import { isErr, ok, Result } from "../../helper.type";
 import { IInfo } from "../blockchain_info/info.type";
 import { canonicalMidnight } from "../../helper";
 
@@ -39,10 +39,7 @@ export class Consumption implements IConsumption {
           daysAgo: j,
           energy: r.data,
         };
-        return {
-          result: Outcome.Success,
-          data: data,
-        };
+        return ok(data);
       };
       work.push(w());
     }

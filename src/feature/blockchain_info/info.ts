@@ -1,6 +1,6 @@
 import { IBlockchain } from "../../client/blockchain.types";
 import { Block, IInfo, Transaction } from "./info.type";
-import { isErr, isOk, Outcome, Result } from "../../helper.type";
+import { err, isErr, isOk, ok, Outcome, Result } from "../../helper.type";
 import { ICache } from "../../client/cache.type";
 import { canonicalMidnight } from "../../helper";
 
@@ -62,12 +62,11 @@ export class Info implements IInfo {
   private getBlockFromApi = async (hash: string): Promise<Result<Block>> => {
     const result = await this.#blockchain.getBlock(hash);
     if (result.result == Outcome.Error) {
-      return {
-        result: Outcome.Error,
-        error: new Error("Unable to get block with this hash", {
+      return err(
+        new Error("Unable to get block with this hash", {
           cause: result.error,
         }),
-      };
+      );
     }
     const rawBlock = result.data;
 
@@ -89,10 +88,7 @@ export class Info implements IInfo {
       size: rawBlock.size,
     };
 
-    return {
-      result: Outcome.Success,
-      data: block,
-    };
+    return ok(block);
   };
 
   block = async (hash: string): Promise<Result<Block>> => {
@@ -117,10 +113,7 @@ export class Info implements IInfo {
 
     const cachedDay = await this.#cache.getDay(dateMs);
     if (isOk(cachedDay)) {
-      return {
-        result: Outcome.Success,
-        data: cachedDay.data.totalTxSize,
-      };
+      return ok(cachedDay.data.totalTxSize);
     }
     const blockMetadataForDay = await this.#blockchain.getBlocksForDay(dateMs);
     if (isErr(blockMetadataForDay)) {
@@ -166,9 +159,6 @@ export class Info implements IInfo {
     }
     await this.#cache.upsertDay(dateMs, { totalTxSize }, ttl);
     console.log("wrote day");
-    return {
-      result: Outcome.Success,
-      data: totalTxSize,
-    };
+    return ok(totalTxSize);
   };
 }

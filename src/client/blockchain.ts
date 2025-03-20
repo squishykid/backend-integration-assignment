@@ -8,7 +8,7 @@ import {
 import axios, { AxiosInstance, AxiosResponse, isAxiosError } from "axios";
 import axiosRetry from "axios-retry";
 import { ZodType } from "zod";
-import { Result, Outcome } from "../helper.type";
+import { Result, err, ok } from "../helper.type";
 import PQueue from "p-queue";
 
 export class Blockchain implements IBlockchain {
@@ -38,10 +38,7 @@ export class Blockchain implements IBlockchain {
       });
     } catch (e: unknown) {
       if (isAxiosError(e)) {
-        return {
-          result: Outcome.Error,
-          error: e,
-        };
+        return err(e);
       }
       throw e;
     }
@@ -53,16 +50,9 @@ export class Blockchain implements IBlockchain {
 
     const parsed = schema.safeParse(res.data);
     if (parsed.success) {
-      return {
-        result: Outcome.Success,
-        data: parsed.data,
-      };
-    } else {
-      return {
-        result: Outcome.Error,
-        error: parsed.error,
-      };
+      return ok(parsed.data);
     }
+    return err(parsed.error);
   };
 
   getBlock = async (hash: string): Promise<Result<RawBlock>> => {
