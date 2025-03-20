@@ -84,7 +84,6 @@ describe("Blockchain API client", () => {
       it("should handle error case", async () => {
         const client = new Blockchain("https://blockchain.info");
         const res = await client.getBlock(tc.blockHash);
-        const a = nock.activeMocks();
         expect(res.result).toEqual(Outcome.Error);
       });
     },

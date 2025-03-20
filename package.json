@@ -8,7 +8,9 @@
     "start": "serverless offline start --httpPort=4000 --host 0.0.0.0 --reloadHandler",
     "compile": "tsc -p . --noEmit",
     "test": "jest",
-    "test:watch": "jest --watch --onlyChanged"
+    "test:watch": "jest --watch --onlyChanged",
+    "lint": "yarn eslint .",
+    "prettier": "yarn exec prettier . --write"
   },
   "dependencies": {
     "axios": "^1.8.3",

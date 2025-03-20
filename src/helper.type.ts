@@ -1,5 +1,3 @@
-import { AxiosError } from "axios";
-
 export enum Outcome {
   Success,
   Error,

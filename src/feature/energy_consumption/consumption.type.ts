@@ -1,5 +1,3 @@
-import { Result } from "../../helper.type";
-
 export type TransactionWithConsumption = {
   hash: string;
   size: number;

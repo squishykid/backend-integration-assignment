@@ -1,9 +1,14 @@
-import { schema } from "./schema";
+import { buildSchema, schema } from "./schema";
 import { APIGatewayProxyHandlerV2 } from "aws-lambda";
 import CreateLambdaApi from "lambda-api";
 import { getGraphQLParameters, processRequest } from "graphql-helix";
 import type { API, HandlerFunction } from "lambda-api";
 import type { GraphQLSchema } from "graphql";
+import { Blockchain } from "./client/blockchain";
+import { Cache } from "./client/cache";
+import { Redis } from "ioredis";
+import { Info } from "./feature/blockchain_info/info";
+import { Consumption } from "./feature/energy_consumption/consumption";
 
 export function APIGatewayLambda() {
   const isTest = process.env.NODE_ENV === "test";
@@ -61,6 +66,12 @@ export function mkAPIGatewayHandler(api: API): APIGatewayProxyHandlerV2 {
     return api.run(event as any, ctx);
   };
 }
+
+const client = new Blockchain();
+const cache = new Cache(new Redis());
+const info = new Info(client, cache);
+const consumption = new Consumption(info, 4.56);
+const schema = buildSchema(consumption);
 
 const api = APIGatewayLambda();
 

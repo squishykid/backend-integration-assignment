@@ -1,11 +1,7 @@
 import * as RawLatestBlock from "./samples/0000000000000000000050af9f3e367620a434fc86c7fbd5b0d9c42bef6649bd.json";
 import * as RawPreviousBlock from "./samples/000000000000000000023fa87ab8d2ad9f50a2596f7310086da858b32fe788dc.json";
 import * as BlocksOnDaySample from "./samples/blocksonday.json";
-import {
-  BlocksOnDaySchema,
-  LatestBlockSchema,
-  RawBlockSchema,
-} from "./blockchain.types";
+import { BlocksOnDaySchema, RawBlockSchema } from "./blockchain.types";
 
 describe("blockchain api types", () => {
   it.each([

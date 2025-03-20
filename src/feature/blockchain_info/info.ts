@@ -72,7 +72,7 @@ export class Info implements IInfo {
       variableHeaderSize = 3;
     } else if (txCount <= 4294967295) {
       variableHeaderSize = 5;
-    } else if (txCount <= 18446744073709551615) {
+    } else {
       variableHeaderSize = 9;
     }
     return rawBlock.size - (fixedHeaderSize + variableHeaderSize);
