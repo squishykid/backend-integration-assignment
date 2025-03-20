@@ -1,4 +1,4 @@
-import { IBlockchain, RawBlock } from "../../client/blockchain.types";
+import { IBlockchain } from "../../client/blockchain.types";
 import { Block, IInfo, Transaction } from "./info.type";
 import { isErr, isOk, Outcome, Result } from "../../helper.type";
 import { ICache } from "../../client/cache.type";
@@ -71,7 +71,7 @@ export class Info implements IInfo {
     }
     const rawBlock = result.data;
 
-    let sizeOfAllTx = 0
+    let sizeOfAllTx = 0;
     const transactions: Transaction[] = rawBlock.tx.map((tx) => {
       sizeOfAllTx += tx.size;
       return {
@@ -95,9 +95,7 @@ export class Info implements IInfo {
     };
   };
 
-  block = async (
-    hash: string,
-  ): Promise<Result<Block>> => {
+  block = async (hash: string): Promise<Result<Block>> => {
     const cachedBlock = await this.#cache.getBlock(hash);
     if (isOk(cachedBlock)) {
       return cachedBlock;

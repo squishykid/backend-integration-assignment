@@ -21,6 +21,7 @@
     "graphql-request": "^5.0.0",
     "graphql-scalars": "^1.18.0",
     "ioredis": "^5.6.0",
+    "jest-when": "^3.7.0",
     "lambda-api": "^0.11.2",
     "p-queue": "6.6.2",
     "zod": "^3.24.2"
@@ -29,6 +30,7 @@
     "@eslint/js": "^9.22.0",
     "@types/aws-lambda": "^8.10.80",
     "@types/jest": "^29.5.14",
+    "@types/jest-when": "^3",
     "@types/node": "14.x",
     "@types/serverless": "^3",
     "aws-sdk": "^2.952.0",

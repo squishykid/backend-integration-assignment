@@ -2862,7 +2862,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/jest@npm:^29.5.14":
+"@types/jest-when@npm:^3":
+  version: 3.5.5
+  resolution: "@types/jest-when@npm:3.5.5"
+  dependencies:
+    "@types/jest": "npm:*"
+  checksum: 10c0/65b4df6204860d71908cf1d5b31e03504628f7efdb275ec3a705d99deb5df3abed419a3387d6cbb7c785e64559f70e3c26f117ad26e3707b4241ae08d3d4467a
+  languageName: node
+  linkType: hard
+
+"@types/jest@npm:*, @types/jest@npm:^29.5.14":
   version: 29.5.14
   resolution: "@types/jest@npm:29.5.14"
   dependencies:
@@ -3395,6 +3404,7 @@ __metadata:
     "@eslint/js": "npm:^9.22.0"
     "@types/aws-lambda": "npm:^8.10.80"
     "@types/jest": "npm:^29.5.14"
+    "@types/jest-when": "npm:^3"
     "@types/node": "npm:14.x"
     "@types/serverless": "npm:^3"
     aws-sdk: "npm:^2.952.0"
@@ -3410,6 +3420,7 @@ __metadata:
     graphql-scalars: "npm:^1.18.0"
     ioredis: "npm:^5.6.0"
     jest: "npm:^29.7.0"
+    jest-when: "npm:^3.7.0"
     lambda-api: "npm:^0.11.2"
     nock: "npm:^14.0.1"
     p-queue: "npm:6.6.2"
@@ -6339,6 +6350,15 @@ __metadata:
     jest-util: "npm:^29.7.0"
     string-length: "npm:^4.0.1"
   checksum: 10c0/ec6c75030562fc8f8c727cb8f3b94e75d831fc718785abfc196e1f2a2ebc9a2e38744a15147170039628a853d77a3b695561ce850375ede3a4ee6037a2574567
+  languageName: node
+  linkType: hard
+
+"jest-when@npm:^3.7.0":
+  version: 3.7.0
+  resolution: "jest-when@npm:3.7.0"
+  peerDependencies:
+    jest: ">= 25"
+  checksum: 10c0/0e5cf14a4bfe4aacdf3c748c5b28ea5b04c51072e2ba3d47832586f756cbb849b33c36fffe89bb0741fb836a69bdc1d30072b641dd275b8a27376376c175937e
   languageName: node
   linkType: hard
 

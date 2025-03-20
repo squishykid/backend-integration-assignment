@@ -3,12 +3,12 @@ export enum Outcome {
   Error,
 }
 
-type SuccessResult<T> = {
+export type SuccessResult<T> = {
   result: Outcome.Success;
   data: T;
 };
 
-type ErrorResult = {
+export type ErrorResult = {
   result: Outcome.Error;
   error: Error | unknown;
 };
