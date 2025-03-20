@@ -1,10 +1,10 @@
 import {
-  BlockWithConsumption,
+  BlockWithConsumption, EnergyOnDay,
   IConsumption,
   LastNDaysConsumption,
-  TransactionWithConsumption,
+  TransactionWithConsumption
 } from "./consumption.type";
-import { isErr } from "../../helper.type";
+import { isErr, Outcome, Result } from "../../helper.type";
 import { IInfo } from "../blockchain_info/info.type";
 import { canonicalMidnight } from "../../helper";
 
@@ -19,25 +19,42 @@ export class Consumption implements IConsumption {
 
   getConsumptionForLastDays = async (
     n: number,
-  ): Promise<LastNDaysConsumption> => {
+  ): Promise<EnergyOnDay[]> => {
     const timeNowMs = Date.now();
     const dayLenInMs = 1000 * 60 * 60 * 24;
     const canonicalTimeNow = canonicalMidnight(timeNowMs + dayLenInMs);
 
+    const work: Promise<Result<EnergyOnDay>>[] = []
     let consumption = 0;
     for (let j = 0; j < n; j++) {
       const dayInMs = canonicalTimeNow - dayLenInMs * j;
-      const txBytesOnDay = await this.#info.txBytesOnDay(dayInMs);
-      if (isErr(txBytesOnDay)) {
-        throw txBytesOnDay.error;
+      const w: () => Promise<Result<EnergyOnDay>> = async () => {
+        const r = await this.#info.txBytesOnDay(dayInMs)
+        if (isErr(r)) {
+          return r;
+        }
+        const data: EnergyOnDay = {
+          dayInMs,
+          daysAgo: j,
+          energy: r.data
+        }
+        return {
+          result: Outcome.Success,
+          data: data,
+        }
       }
-      consumption += txBytesOnDay.data * this.costPerByte;
+      work.push(w());
     }
 
-    return {
-      days: n,
-      energy: consumption,
-    };
+    const completed = await Promise.all(work)
+    const res: EnergyOnDay[] = [];
+    for (const c of completed) {
+      if (isErr(c)) {
+        throw c.error;
+      }
+      res.push(c.data);
+    }
+    return res;
   };
 
   getConsumptionPerTransaction = async (
@@ -45,7 +62,7 @@ export class Consumption implements IConsumption {
   ): Promise<BlockWithConsumption> => {
     const blockInfo = await this.#info.block(hash);
     if (isErr(blockInfo)) {
-      throw blockInfo.error;
+      throw new Error("unable to complete request, please try again", {cause: blockInfo.error});
     }
 
     const transactions: TransactionWithConsumption[] = blockInfo.data.tx.map(

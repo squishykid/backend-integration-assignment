@@ -1,6 +1,7 @@
 import { CachedBlock, CachedDay, ICache } from "./cache.type";
 import { Outcome, Result } from "../helper.type";
 import { Redis } from "ioredis";
+import pLimit from "p-limit";
 export class Cache implements ICache {
   readonly #redis: Redis;
 
@@ -30,6 +31,7 @@ export class Cache implements ICache {
     };
   };
 
+
   getDay = async (timestampMs: number): Promise<Result<CachedDay>> => {
     const cached = await this.#redis.get(`${timestampMs}`);
     if (!cached) {
@@ -40,7 +42,9 @@ export class Cache implements ICache {
     }
     return {
       result: Outcome.Success,
-      data: JSON.parse(cached),
+      data: {
+        totalTxSize: parseInt(cached, 10)
+      },
     };
   };
 
@@ -51,9 +55,9 @@ export class Cache implements ICache {
   ): Promise<Result<void>> => {
     ttl = Math.floor(ttl);
     if (ttl > -1) {
-      await this.#redis.set(`${timestampMs}`, JSON.stringify(day), "PX", ttl);
+      await this.#redis.set(`${timestampMs}`, `${day.totalTxSize}`, "PX", ttl);
     } else {
-      await this.#redis.set(`${timestampMs}`, JSON.stringify(day));
+      await this.#redis.set(`${timestampMs}`, `${day.totalTxSize}`);
     }
     return {
       result: Outcome.Success,

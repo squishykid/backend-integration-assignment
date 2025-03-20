@@ -10,12 +10,13 @@ export type BlockWithConsumption = {
   tx: TransactionWithConsumption[];
 };
 
-export type LastNDaysConsumption = {
-  days: number;
+export type EnergyOnDay = {
+  dayInMs: number;
+  daysAgo: number;
   energy: number;
 };
 
 export interface IConsumption {
   getConsumptionPerTransaction(hash: string): Promise<BlockWithConsumption>;
-  getConsumptionForLastDays(n: number): Promise<LastNDaysConsumption>;
+  getConsumptionForLastDays(n: number): Promise<EnergyOnDay[]>;
 }

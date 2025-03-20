@@ -1,13 +1,15 @@
 import { SchemaComposer } from "graphql-compose";
 import { Consumption } from "./feature/energy_consumption/consumption";
 import { GraphQLSchema } from "graphql";
+import { EnergyOnDay } from "./feature/energy_consumption/consumption.type";
 
 export const buildSchema = (consumption: Consumption): GraphQLSchema => {
   const schemaComposer = new SchemaComposer();
-  const LastNDaysTC = schemaComposer.createObjectTC({
-    name: "LastNDays",
+  const EnergyOnDayTC = schemaComposer.createObjectTC({
+    name: "EnergyOnDay",
     fields: {
-      days: "Int!",
+      dayInMs: "Float!",
+      daysAgo: "Int!",
       energy: "Float!",
     },
   });
@@ -32,7 +34,7 @@ export const buildSchema = (consumption: Consumption): GraphQLSchema => {
 
   schemaComposer.Query.addFields({
     lastDays: {
-      type: () => LastNDaysTC,
+      type: () => [EnergyOnDayTC],
       args: { days: "Int!" },
       resolve: (_, { days }) => consumption.getConsumptionForLastDays(days),
     },

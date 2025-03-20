@@ -9,12 +9,12 @@ import axios, { AxiosInstance, AxiosResponse, isAxiosError } from "axios";
 import axiosRetry from "axios-retry";
 import { ZodType } from "zod";
 import { Result, Outcome } from "../helper.type";
-import pLimit, { LimitFunction } from "p-limit";
+import PQueue from "p-queue";
 
 export class Blockchain implements IBlockchain {
   readonly urlBase: string;
   readonly axios: AxiosInstance;
-  readonly #limit: LimitFunction;
+  readonly #queue: PQueue;
   constructor(urlBase: string = "https://blockchain.info", concurrency = 100) {
     this.axios = axios.create({
       baseURL: urlBase,
@@ -24,7 +24,7 @@ export class Blockchain implements IBlockchain {
       retryDelay: axiosRetry.exponentialDelay,
     });
     this.urlBase = urlBase;
-    this.#limit = pLimit(concurrency);
+    this.#queue = new PQueue({concurrency})
   }
 
   private get = async <T>(
@@ -33,10 +33,16 @@ export class Blockchain implements IBlockchain {
   ): Promise<Result<T>> => {
     let res: AxiosResponse<unknown>;
     try {
-      await this.#limit(async () => {
-        console.log("limits", this.#limit.pendingCount);
+      await this.#queue.add(async () => {
+        console.log("limits", this.#queue.size, this.#queue.pending);
         res = await this.axios.get(path);
-      });
+        console.log("limits done", this.#queue.size, this.#queue.pending);
+
+      })
+      // await this.#limit(async () => {
+      //     console.log("limits", this.#limit.pendingCount);
+      //     res = await this.axios.get(path);
+      // });
     } catch (e: unknown) {
       if (isAxiosError(e)) {
         return {

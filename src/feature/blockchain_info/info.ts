@@ -19,20 +19,21 @@ export class Info implements IInfo {
     this.#minTtlMs = minTtlMs;
   }
 
-  static approxMsUntilNextBlock = (nowMs: number, blocks: Block[]): number => {
-    if (blocks.length < 2) {
+  static approxMsUntilNextBlock = (nowMs: number, blocksTimes: number[]): number => {
+    blocksTimes.sort()
+    if (blocksTimes.length < 2) {
       return 0;
     }
     let aggSec = 0;
-    let latestSec = blocks[0].time;
-    for (let i = 1; i < blocks.length; i++) {
-      const firstSec = blocks[i - 1].time;
-      const secondSec = blocks[i].time;
-      const intervalSec = firstSec - secondSec;
+    let latestSec = blocksTimes[0];
+    for (let i = 1; i < blocksTimes.length; i++) {
+      const firstSec = blocksTimes[i - 1];
+      const secondSec = blocksTimes[i];
+      const intervalSec = secondSec - firstSec;
       aggSec += intervalSec;
       latestSec = latestSec > secondSec ? latestSec : secondSec;
     }
-    const avgIntervalSec = aggSec / (blocks.length - 1);
+    const avgIntervalSec = aggSec / (blocksTimes.length - 1);
     const predictedMs = (latestSec + avgIntervalSec) * 1000;
     console.log(
       predictedMs - nowMs,
@@ -114,7 +115,7 @@ export class Info implements IInfo {
     };
   };
 
-  block = async (hash: string): Promise<Result<Block>> => {
+  block = async (hash: string, witeToCache: boolean = true): Promise<Result<Block>> => {
     const cachedBlock = await this.#cache.getBlock(hash);
     if (isOk(cachedBlock)) {
       return cachedBlock;
@@ -125,7 +126,9 @@ export class Info implements IInfo {
       return freshData;
     }
 
-    await this.#cache.upsertBlock(freshData.data);
+    if (witeToCache) {
+      await this.#cache.upsertBlock(freshData.data);
+    }
 
     return freshData;
   };
@@ -147,34 +150,41 @@ export class Info implements IInfo {
     }
 
     const hashesForDay = blockMetadataForDay.data.map((b) => b.hash);
-    const work: Promise<Result<Block>>[] = [];
-    for (const hash of hashesForDay) {
-      work.push(this.block(hash));
-    }
-
-    const result = await Promise.all(work);
-
+    const work: Promise<void>[] = [];
     let totalTxSize = 0;
-    const blocksForDay: Block[] = [];
-    for (const res of result) {
-      if (res.result == Outcome.Success) {
-        totalTxSize += res.data.txSize;
-        blocksForDay.push(res.data);
-      } else {
-        // exit here and do not put error in cache
-        return res;
-      }
+    const blockTimes: number[] | null = isToday ? [] : null;
+
+    for (const hash of hashesForDay) {
+      const w = async (): Promise<void> => {
+        const res = await this.block(hash, true)//isToday)
+        if (res.result == Outcome.Success) {
+          totalTxSize += res.data.txSize;
+          if (blockTimes) {
+            blockTimes.push(res.data.time);
+          }
+        } else {
+          // exit here and do not put error in cache
+          throw res.error;
+        }
+      };
+      work.push(w());
     }
+
+    await Promise.all(work);
+
+    console.log("finished work", hashesForDay.length, work.length);
 
     let ttl = -1;
-    if (isToday) {
+    if (blockTimes) {
+      console.log("getting tt next block")
       const msToNextBlock = Info.approxMsUntilNextBlock(
         Date.now(),
-        blocksForDay,
+        blockTimes,
       );
       ttl = this.todayCacheTtl(msToNextBlock);
     }
     await this.#cache.upsertDay(dateMs, { totalTxSize }, ttl);
+    console.log("wrote day")
     return {
       result: Outcome.Success,
       data: totalTxSize,
