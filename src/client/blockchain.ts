@@ -24,7 +24,7 @@ export class Blockchain implements IBlockchain {
       retryDelay: axiosRetry.exponentialDelay,
     });
     this.urlBase = urlBase;
-    this.#queue = new PQueue({concurrency})
+    this.#queue = new PQueue({ concurrency });
   }
 
   private get = async <T>(
@@ -35,7 +35,7 @@ export class Blockchain implements IBlockchain {
     try {
       q = await this.#queue.add(async () => {
         return await this.axios.get(path);
-      })
+      });
     } catch (e: unknown) {
       if (isAxiosError(e)) {
         return {
@@ -47,8 +47,8 @@ export class Blockchain implements IBlockchain {
     }
 
     const res: AxiosResponse<unknown> | void = await q;
-    if (typeof res !== 'object') {
-      throw new Error('internal type error');
+    if (typeof res !== "object") {
+      throw new Error("internal type error");
     }
 
     const parsed = schema.safeParse(res.data);

@@ -19,8 +19,11 @@ export class Info implements IInfo {
     this.#minTtlMs = minTtlMs;
   }
 
-  static approxMsUntilNextBlock = (nowMs: number, blocksTimes: number[]): number => {
-    blocksTimes.sort()
+  static approxMsUntilNextBlock = (
+    nowMs: number,
+    blocksTimes: number[],
+  ): number => {
+    blocksTimes.sort();
     if (blocksTimes.length < 2) {
       return 0;
     }
@@ -56,49 +59,26 @@ export class Info implements IInfo {
     return msUntilNextBlock;
   };
 
-  static aggregateTransactionSize = (rawBlock: RawBlock): number => {
-    /*
-    The sum of the size of all transactions is NOT the same as the size of a block.
-    https://learnmeabitcoin.com/technical/block/
-    The block header is a fixed size, EXCEPT for the transaction count.
-    The transaction count is a variable length field. Usually around 3 bytes,
-      but can vary from 1 to 9 bytes, depending on the number of transactions.
-     */
-    const fixedHeaderSize = 80;
-    let variableHeaderSize = 0;
-    const txCount = rawBlock.tx.length;
-    if (txCount <= 252) {
-      variableHeaderSize = 1;
-    } else if (txCount <= 65535) {
-      variableHeaderSize = 3;
-    } else if (txCount <= 4294967295) {
-      variableHeaderSize = 5;
-    } else {
-      variableHeaderSize = 9;
-    }
-    return rawBlock.size - (fixedHeaderSize + variableHeaderSize);
-  };
-
-  private callForBlock = async (hash: string): Promise<Result<Block>> => {
-    const q = await this.#blockchain.getBlock(hash);
-    if (q.result == Outcome.Error) {
+  private getBlockFromApi = async (hash: string): Promise<Result<Block>> => {
+    const result = await this.#blockchain.getBlock(hash);
+    if (result.result == Outcome.Error) {
       return {
         result: Outcome.Error,
         error: new Error("Unable to get block with this hash", {
-          cause: q.error,
+          cause: result.error,
         }),
       };
     }
-    const rawBlock = q.data;
+    const rawBlock = result.data;
 
+    let sizeOfAllTx = 0
     const transactions: Transaction[] = rawBlock.tx.map((tx) => {
+      sizeOfAllTx += tx.size;
       return {
         hash: tx.hash,
         size: tx.size,
       };
     });
-
-    const sizeOfAllTx = Info.aggregateTransactionSize(rawBlock);
 
     const block: Block = {
       hash: rawBlock.hash,
@@ -115,20 +95,20 @@ export class Info implements IInfo {
     };
   };
 
-  block = async (hash: string, witeToCache: boolean = true): Promise<Result<Block>> => {
+  block = async (
+    hash: string,
+  ): Promise<Result<Block>> => {
     const cachedBlock = await this.#cache.getBlock(hash);
     if (isOk(cachedBlock)) {
       return cachedBlock;
     }
 
-    const freshData = await this.callForBlock(hash);
+    const freshData = await this.getBlockFromApi(hash);
     if (isErr(freshData)) {
       return freshData;
     }
 
-    if (witeToCache) {
-      await this.#cache.upsertBlock(freshData.data);
-    }
+    await this.#cache.upsertBlock(freshData.data);
 
     return freshData;
   };
@@ -156,7 +136,7 @@ export class Info implements IInfo {
 
     for (const hash of hashesForDay) {
       const w = async (): Promise<void> => {
-        const res = await this.block(hash, true)//isToday)
+        const res = await this.block(hash);
         if (res.result == Outcome.Success) {
           totalTxSize += res.data.txSize;
           if (blockTimes) {
@@ -176,15 +156,18 @@ export class Info implements IInfo {
 
     let ttl = -1;
     if (blockTimes) {
-      console.log("getting tt next block")
-      const msToNextBlock = Info.approxMsUntilNextBlock(
-        Date.now(),
-        blockTimes,
-      );
+      /*
+      The list of block times is only created if we are processing *today*.
+      Since today is not finished yet, more blocks may be produced before
+       the day ends.
+      Therefore, we guess when the next block might be mined and set the
+       cached value to expire then.
+       */
+      const msToNextBlock = Info.approxMsUntilNextBlock(Date.now(), blockTimes);
       ttl = this.todayCacheTtl(msToNextBlock);
     }
     await this.#cache.upsertDay(dateMs, { totalTxSize }, ttl);
-    console.log("wrote day")
+    console.log("wrote day");
     return {
       result: Outcome.Success,
       data: totalTxSize,

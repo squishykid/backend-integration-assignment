@@ -1,7 +1,6 @@
 import { SchemaComposer } from "graphql-compose";
 import { Consumption } from "./feature/energy_consumption/consumption";
 import { GraphQLSchema } from "graphql";
-import { EnergyOnDay } from "./feature/energy_consumption/consumption.type";
 
 export const buildSchema = (consumption: Consumption): GraphQLSchema => {
   const schemaComposer = new SchemaComposer();
