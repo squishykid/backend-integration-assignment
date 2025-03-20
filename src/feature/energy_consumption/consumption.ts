@@ -6,6 +6,7 @@ import {
 } from "./consumption.type";
 import { isErr } from "../../helper.type";
 import { IInfo } from "../blockchain_info/info.type";
+import { canonicalMidnight } from "../../helper";
 
 export class Consumption implements IConsumption {
   readonly #info: IInfo;
@@ -21,26 +22,16 @@ export class Consumption implements IConsumption {
   ): Promise<LastNDaysConsumption> => {
     const timeNowMs = Date.now();
     const dayLenInMs = 1000 * 60 * 60 * 24;
-    const canonicalTimeNow = new Date(timeNowMs + dayLenInMs).setHours(
-      0,
-      0,
-      0,
-      0,
-    );
+    const canonicalTimeNow = canonicalMidnight(timeNowMs + dayLenInMs);
 
     let consumption = 0;
     for (let j = 0; j < n; j++) {
       const dayInMs = canonicalTimeNow - dayLenInMs * j;
-      const blocksForDay = await this.#info.blocksOnDay(dayInMs);
-      if (isErr(blocksForDay)) {
-        throw blocksForDay.error;
+      const txBytesOnDay = await this.#info.txBytesOnDay(dayInMs);
+      if (isErr(txBytesOnDay)) {
+        throw txBytesOnDay.error;
       }
-      for (const block of blocksForDay.data) {
-        const blockEnergy = block.tx.reduce((acc, current) => {
-          return acc + current.size * this.costPerByte;
-        }, 0);
-        consumption += blockEnergy;
-      }
+      consumption += txBytesOnDay.data * this.costPerByte;
     }
 
     return {
@@ -57,11 +48,9 @@ export class Consumption implements IConsumption {
       throw blockInfo.error;
     }
 
-    let aggregateEnergy = 0;
     const transactions: TransactionWithConsumption[] = blockInfo.data.tx.map(
       (t) => {
         const energy = t.size * this.costPerByte;
-        aggregateEnergy += energy;
         return {
           hash: t.hash,
           size: t.size,
@@ -73,7 +62,7 @@ export class Consumption implements IConsumption {
     return {
       hash: blockInfo.data.hash,
       tx: transactions,
-      energy: aggregateEnergy,
+      energy: blockInfo.data.txSize * this.costPerByte,
     };
   };
 }

@@ -2,16 +2,10 @@ import {
   BlocksOnDay,
   BlocksOnDaySchema,
   IBlockchain,
-  LatestBlock,
-  LatestBlockSchema,
   RawBlock,
   RawBlockSchema,
 } from "./blockchain.types";
-import axios, {
-  AxiosInstance,
-  AxiosResponse,
-  isAxiosError,
-} from "axios";
+import axios, { AxiosInstance, AxiosResponse, isAxiosError } from "axios";
 import axiosRetry from "axios-retry";
 import { ZodType } from "zod";
 import { Result, Outcome } from "../helper.type";
@@ -20,8 +14,8 @@ import pLimit, { LimitFunction } from "p-limit";
 export class Blockchain implements IBlockchain {
   readonly urlBase: string;
   readonly axios: AxiosInstance;
-  readonly #limit: LimitFunction
-  constructor(urlBase: string = "https://blockchain.info", concurrency = 50) {
+  readonly #limit: LimitFunction;
+  constructor(urlBase: string = "https://blockchain.info", concurrency = 100) {
     this.axios = axios.create({
       baseURL: urlBase,
     });
@@ -30,7 +24,7 @@ export class Blockchain implements IBlockchain {
       retryDelay: axiosRetry.exponentialDelay,
     });
     this.urlBase = urlBase;
-    this.#limit = pLimit(concurrency)
+    this.#limit = pLimit(concurrency);
   }
 
   private get = async <T>(
@@ -40,9 +34,9 @@ export class Blockchain implements IBlockchain {
     let res: AxiosResponse<unknown>;
     try {
       await this.#limit(async () => {
-        console.log("limits", this.#limit.pendingCount);
+        // console.log("limits", this.#limit.pendingCount);
         res = await this.axios.get(path);
-      })
+      });
     } catch (e: unknown) {
       if (isAxiosError(e)) {
         return {

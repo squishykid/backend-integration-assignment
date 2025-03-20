@@ -10,13 +10,21 @@ export type CachedBlock = {
   prevBlock: string;
   time: number;
   tx: CachedTransaction[];
+  size: number;
+  txSize: number;
 };
 
-export type CachedDay = string[];
+export type CachedDay = {
+  totalTxSize: number;
+};
 
 export interface ICache {
   getBlock(hash: string): Promise<Result<CachedBlock>>;
   upsertBlock(block: CachedBlock): Promise<Result<void>>;
   getDay(timestampMs: number): Promise<Result<CachedDay>>;
-  upsertDay(timestampMs: number, day: CachedDay): Promise<Result<void>>;
+  upsertDay(
+    timestampMs: number,
+    day: CachedDay,
+    ttl: number,
+  ): Promise<Result<void>>;
 }

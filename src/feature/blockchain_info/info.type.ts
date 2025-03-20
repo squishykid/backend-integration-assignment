@@ -10,9 +10,11 @@ export type Block = {
   prevBlock: string;
   time: number;
   tx: Transaction[];
+  size: number;
+  txSize: number;
 };
 
 export interface IInfo {
   block(hash: string): Promise<Result<Block>>;
-  blocksOnDay(date: number): Promise<Result<Block[]>>;
+  txBytesOnDay(date: number): Promise<Result<number>>;
 }
